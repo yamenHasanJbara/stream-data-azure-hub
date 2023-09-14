@@ -36,8 +36,8 @@ export class ServiceBusService {
         batch = await serviceBusSender.createMessageBatch(message.body);
       }
       await serviceBusSender.sendMessages(batch);
-      await serviceBusSender.close();
-      await serviceBusClient.close();
+      // await serviceBusSender.close();
+      // await serviceBusClient.close();
 
     } catch (e) {
       this.logging.error(e);
