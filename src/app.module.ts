@@ -1,7 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MongooseModule } from "@nestjs/mongoose";
-import { CommonModule } from './common/common.module';
+import { CommonModule } from "./common/common.module";
+import { EventHubModule } from './event-hub/event-hub.module';
+import { ServiceBusModule } from './service-bus/service-bus.module';
+import { DataModelModule } from './data-model/data-model.module';
 
 @Module({
   imports: [
@@ -18,7 +21,11 @@ import { CommonModule } from './common/common.module';
       },
       inject: [ConfigService]
     }),
-    CommonModule
+
+    CommonModule,
+    EventHubModule,
+    ServiceBusModule,
+    DataModelModule
   ],
   controllers: [],
   providers: []
