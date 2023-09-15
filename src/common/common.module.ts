@@ -4,7 +4,6 @@ import { CustomConfig } from "./custom.config";
 
 
 @Module({
-  imports: [],
   providers: [CustomLogger, CustomConfig],
   exports: [CustomLogger, CustomConfig]
 })

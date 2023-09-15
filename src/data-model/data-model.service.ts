@@ -16,7 +16,7 @@ export class DataModelService {
   ) {
   }
 
-  async storeInDb(messageReceived, queueName: string) {
+  async storeInDb(messageReceived: any, queueName: string) {
     try {
       return this.dataModel.create({
         queue_name: queueName,

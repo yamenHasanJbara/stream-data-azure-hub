@@ -24,33 +24,34 @@ export class EventHubService {
   ) {
   }
 
-  async createConnectionToEventHub() {
+  /**
+   * Init a persistent connection to the event hub, and send the data for service bus queue.
+   */
+  async createConnectionToEventHub(): Promise<void> {
     const eventHubConnectionString: string = this.customConfig.getEventHubConnectionString();
     const eventHubName: string = this.customConfig.getEventHubName();
     const consumerGroup: string = this.customConfig.getConsumerGroupName();
     const storageConnectionString: string = this.customConfig.getStorageConnectionString();
     const containerName: string = this.customConfig.getContainerName();
 
-
+    // Create a blob container client and a blob checkpoint store using the client.
     const containerClient: ContainerClient = new ContainerClient(
       storageConnectionString,
       containerName
     );
 
-
     const checkPointStore: BlobCheckpointStore = new BlobCheckpointStore(
       containerClient
     );
-
-
+    // Create a consumer client for the event hub by specifying the checkpoint store.
     const consumerClient: EventHubConsumerClient = new EventHubConsumerClient(
       consumerGroup,
       eventHubConnectionString,
       eventHubName,
-      checkPointStore
+      checkPointStore,
     );
 
-
+    // Subscribe to the events, and specify handlers for processing the events and errors.
     const subscription: Subscription = consumerClient.subscribe({
         processEvents: async (events: ReceivedEventData[], context: PartitionContext) => {
           if (events.length === 0) {
@@ -72,10 +73,6 @@ export class EventHubService {
         startPosition: earliestEventPosition
       }
     );
-    return {
-      "status": true,
-      "message": "connection to the event hub successfully"
-    };
   }
 
 }

@@ -11,7 +11,6 @@ import { CommonModule } from "../common/common.module";
     ]),
     CommonModule
   ],
-  controllers: [],
   providers: [DataModelService],
   exports: [DataModelService]
 })

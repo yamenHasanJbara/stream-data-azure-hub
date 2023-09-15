@@ -39,12 +39,12 @@ export class CustomConfig {
     return this.configService.get<string>("SECOND_SERVICE_BUS_QUEUE_NAME");
   }
 
-  getLoggerPath(): string{
-    return this.configService.get<string>('LOG_MESSAGE_FILE_PATH');
+  getLoggerPath(): string {
+    return this.configService.get<string>("LOG_MESSAGE_FILE_PATH");
   }
 
 
-  getLoggerPathError(): string{
-    return this.configService.get<string>('ERROR_MESSAGE_FILE_PATH');
+  getLoggerPathError(): string {
+    return this.configService.get<string>("ERROR_MESSAGE_FILE_PATH");
   }
 }

@@ -8,7 +8,6 @@ import { ServiceBusModule } from "../service-bus/service-bus.module";
     CommonModule,
     ServiceBusModule
   ],
-  controllers: [],
   providers: [EventHubService]
 })
 export class EventHubModule {

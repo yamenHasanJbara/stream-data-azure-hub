@@ -8,7 +8,6 @@ import { DataModelModule } from "../data-model/data-model.module";
     CommonModule,
     DataModelModule
   ],
-  controllers: [],
   providers: [ServiceBusService],
   exports: [ServiceBusService]
 })

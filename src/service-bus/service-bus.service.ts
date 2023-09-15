@@ -21,23 +21,21 @@ export class ServiceBusService {
   ) {
   }
 
-  async sendToServiceBus(message: ReceivedEventData) {
+  async sendToServiceBus(message: ReceivedEventData): Promise<void> {
 
     try {
       const connectionString: string = this.customConfig.getServiceBusConnectionString();
       //let queue: string;
       const queue: string = this.getQueue(message.body);
-
+      // create a Service Bus client using the connection string to the Service Bus namespace
       const serviceBusClient: ServiceBusClient = new ServiceBusClient(connectionString);
+      // createSender() can also be used to create a sender for a topic.
       const serviceBusSender: ServiceBusSender = serviceBusClient.createSender(queue);
 
+      // here is the process for sending data through a batch
       let batch: ServiceBusMessageBatch = await serviceBusSender.createMessageBatch();
-      if (!batch.tryAddMessage(message)) {
-        await serviceBusSender.sendMessages(batch);
-        batch = await serviceBusSender.createMessageBatch(message.body);
-      }
+      // send data through the batch
       await serviceBusSender.sendMessages(batch);
-
 
     } catch (e) {
       this.logging.error(e);
@@ -91,6 +89,15 @@ export class ServiceBusService {
     }
   }
 
+  /**
+   *
+   * @param deadMessages
+   * @param queueName
+   * @param sbClient
+   * @param receiverHandleForDeadMessage
+   * @private
+   * this function is used for resend dead messages to the queue to reprocessing it again.
+   */
   private async fixAndResendMessage(deadMessages: ServiceBusReceivedMessage[], queueName: string, sbClient: ServiceBusClient, receiverHandleForDeadMessage: ServiceBusReceiver) {
     const sender: ServiceBusSender = sbClient.createSender(queueName);
     for (const message of deadMessages) {
