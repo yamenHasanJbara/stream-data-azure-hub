@@ -34,7 +34,10 @@ export class ServiceBusService {
 
       // here is the process for sending data through a batch
       let batch: ServiceBusMessageBatch = await serviceBusSender.createMessageBatch();
-      // send data through the batch
+      if (!batch.tryAddMessage(message)) {
+        await serviceBusSender.sendMessages(batch);
+        batch = await serviceBusSender.createMessageBatch(message.body);
+      }
       await serviceBusSender.sendMessages(batch);
 
     } catch (e) {
