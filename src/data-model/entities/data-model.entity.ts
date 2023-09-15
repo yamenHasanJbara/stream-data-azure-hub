@@ -3,7 +3,9 @@ import { HydratedDocument } from "mongoose";
 
 export type DataModelDocument = HydratedDocument<DataModel>;
 
-@Schema()
+@Schema({
+  timestamps: true
+})
 export class DataModel {
 
   @Prop()

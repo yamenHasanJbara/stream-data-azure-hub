@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { ServiceBusService } from "./service-bus.service";
-import { ServiceBusController } from "./service-bus.controller";
 import { CommonModule } from "../common/common.module";
 import { DataModelModule } from "../data-model/data-model.module";
 
@@ -9,7 +8,7 @@ import { DataModelModule } from "../data-model/data-model.module";
     CommonModule,
     DataModelModule
   ],
-  controllers: [ServiceBusController],
+  controllers: [],
   providers: [ServiceBusService],
   exports: [ServiceBusService]
 })

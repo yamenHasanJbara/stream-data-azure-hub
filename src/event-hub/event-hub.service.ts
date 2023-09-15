@@ -25,7 +25,6 @@ export class EventHubService {
   }
 
   async createConnectionToEventHub() {
-    console.log('test');
     const eventHubConnectionString: string = this.customConfig.getEventHubConnectionString();
     const eventHubName: string = this.customConfig.getEventHubName();
     const consumerGroup: string = this.customConfig.getConsumerGroupName();

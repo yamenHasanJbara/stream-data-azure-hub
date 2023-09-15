@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { EventHubService } from "./event-hub.service";
-import { EventHubController } from "./event-hub.controller";
 import { CommonModule } from "../common/common.module";
 import { ServiceBusModule } from "../service-bus/service-bus.module";
 
@@ -9,7 +8,7 @@ import { ServiceBusModule } from "../service-bus/service-bus.module";
     CommonModule,
     ServiceBusModule
   ],
-  controllers: [EventHubController],
+  controllers: [],
   providers: [EventHubService]
 })
 export class EventHubModule {

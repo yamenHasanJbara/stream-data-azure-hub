@@ -2,7 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { CustomConfig } from "../common/custom.config";
 import { CustomLogger } from "../common/custom.logger";
 import { ReceivedEventData } from "@azure/event-hubs";
-import { ServiceBusClient, ServiceBusMessageBatch, ServiceBusReceiver, ServiceBusSender } from "@azure/service-bus";
+import {
+  ServiceBusClient,
+  ServiceBusMessageBatch,
+  ServiceBusReceivedMessage,
+  ServiceBusReceiver,
+  ServiceBusSender
+} from "@azure/service-bus";
 import { DataModelService } from "../data-model/data-model.service";
 import { queuesName } from "../common/queues";
 
@@ -19,13 +25,8 @@ export class ServiceBusService {
 
     try {
       const connectionString: string = this.customConfig.getServiceBusConnectionString();
-      let queue: string;
-      if (message.body.test) {
-        // Strategy design patter
-        queue = this.customConfig.getFirstQueueName();
-      } else {
-        queue = this.customConfig.getSecondQueueName();
-      }
+      //let queue: string;
+      const queue: string = this.getQueue(message.body);
 
       const serviceBusClient: ServiceBusClient = new ServiceBusClient(connectionString);
       const serviceBusSender: ServiceBusSender = serviceBusClient.createSender(queue);
@@ -36,8 +37,7 @@ export class ServiceBusService {
         batch = await serviceBusSender.createMessageBatch(message.body);
       }
       await serviceBusSender.sendMessages(batch);
-      // await serviceBusSender.close();
-      // await serviceBusClient.close();
+
 
     } catch (e) {
       this.logging.error(e);
@@ -52,19 +52,26 @@ export class ServiceBusService {
     // create a Service Bus client using the connection string to the Service Bus namespace
     const sbClient: ServiceBusClient = new ServiceBusClient(connectionString);
 
-    let queues: string[] = queuesName;
-    for (const queue of queues) {
+    for (const queue of queuesName) {
       // createReceiver() can also be used to create a receiver for a subscription.
       const receiver: ServiceBusReceiver = sbClient.createReceiver(queue);
 
+      const receiverHandleForDeadMessage: ServiceBusReceiver = sbClient.createReceiver(queue, { subQueueType: "deadLetter" });
+
+      //check if there is any deal letter messages in the queue
+      const deadMessages: ServiceBusReceivedMessage[] = await receiverHandleForDeadMessage.receiveMessages(100);
+      if (deadMessages.length > 0) {
+        await this.fixAndResendMessage(deadMessages, queue, sbClient, receiverHandleForDeadMessage);
+      }
+
       // function to handle messages
-      const myMessageHandler = async (messageReceived) => {
+      const myMessageHandler = async (messageReceived: any) => {
         await this.dataModelService.storeInDb(messageReceived.body, queue);
       };
 
       // function to handle any errors
-      const myErrorHandler = async (error) => {
-        this.logging.log(error);
+      const myErrorHandler = async (error: any) => {
+        this.logging.error(error);
       };
 
       // subscribe and specify the message and error handlers
@@ -76,4 +83,21 @@ export class ServiceBusService {
     }
   }
 
+  private getQueue(body: any): string {
+    if (body.test) {
+      return this.customConfig.getFirstQueueName();
+    } else {
+      return this.customConfig.getSecondQueueName();
+    }
+  }
+
+  private async fixAndResendMessage(deadMessages: ServiceBusReceivedMessage[], queueName: string, sbClient: ServiceBusClient, receiverHandleForDeadMessage: ServiceBusReceiver) {
+    const sender: ServiceBusSender = sbClient.createSender(queueName);
+    for (const message of deadMessages) {
+      const repairedMessage = { ...message };
+      await sender.sendMessages(repairedMessage);
+      await receiverHandleForDeadMessage.completeMessage(message);
+    }
+    await sender.close();
+  }
 }

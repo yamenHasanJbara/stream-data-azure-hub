@@ -11,10 +11,6 @@ export class CustomConfig {
     return this.configService.get<string>("EVENT_HUB_CONNECTION_STRING");
   }
 
-  getEventHubNamespaceConnectionString(): string {
-    return this.configService.get<string>("EVENT_HUBS_NAMESPACE_CONNECTION_STRING");
-  }
-
   getStorageConnectionString(): string {
     return this.configService.get<string>("STORAGE_CONNECTION_STRING");
   }
@@ -33,10 +29,6 @@ export class CustomConfig {
 
   getServiceBusConnectionString(): string {
     return this.configService.get<string>("SERVICE_BUS_CONNECTION_STRING");
-  }
-
-  getServiceBusName(): string {
-    return this.configService.get<string>("SERVICE_BUS_NAME");
   }
 
   getFirstQueueName(): string {
